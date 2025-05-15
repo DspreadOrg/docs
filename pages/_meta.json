@@ -1,0 +1,39 @@
+{
+  "index": "Overview",
+  "plan-your-integration": "Plan your integration",
+  "how-terminal-works": "How terminal works",
+  "integration-section": {
+    "title": "Integration",
+    "type": "separator"
+  },
+  "android-terminals": "Android Terminals",
+  "linux-terminals": "Linux Terminals",
+  "mpos-terminals": {
+    "title": "Mobile Reader",
+    "href": "https://dspreadorg.github.io/qpos/#/",
+    "newWindow": true
+  },
+  "cloud-speaker": "Cloud Speaker",
+  "tms-larktms": "TMS/LarkTMS",
+  "p2pe": {
+    "title": "P2PE",
+    "type": "separator"
+  },
+  "key-management-aws": "Key Management (AWS)",
+  "payment-gateway-aws": "Payment Gateway (AWS)",
+  "emv-l3-testing": "EMV L3 Testing",
+  "support": {
+    "title": "Community",
+    "type": "separator"
+  },
+  "faq": {
+    "title": "💡Q&A",
+    "href": "https://github.com/DspreadOrg/docs/discussions/categories/q-a",
+    "newWindow": true
+  },
+  "troubleshooting": {
+    "title": "🙌Show and tell",
+    "href": "https://github.com/DspreadOrg/docs/discussions/categories/show-and-tell",
+    "newWindow": true
+  }
+}

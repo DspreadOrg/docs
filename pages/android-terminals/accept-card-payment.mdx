@@ -1,0 +1,195 @@
+---
+title: Accept Card Payment
+description: How to implement card payment processing with Android Terminals
+---
+
+import { Steps, Tabs, Tab } from 'nextra/components'
+
+# Accept Card Payment
+
+<Steps>
+
+### Initialize SDK
+
+<Tabs items={['smartpos', 'mpos']}>
+  <Tab>
+  ```java
+  private void open(CommunicationMode mode) {
+      listener = new MyPosListener();
+      pos = QPOSService.getInstance(OtherActivity.this, mode);
+      if (pos == null) {
+          statusEditText.setText("CommunicationMode unknow");
+          return;
+      }
+      Handler handler = new Handler(Looper.myLooper());
+      pos.initListener(handler, listener);
+  }
+  ```
+  </Tab>
+  <Tab>
+  ```java
+  private void open(CommunicationMode mode) {
+      listener = new MyPosListener();
+      pos = QPOSService.getInstance(OtherActivity.this, mode);
+      if (pos == null) {
+          statusEditText.setText("CommunicationMode unknow");
+          return;
+      }
+      Handler handler = new Handler(Looper.myLooper());
+      pos.initListener(handler, listener);
+  }
+  ```
+  </Tab>
+</Tabs>
+
+### Start Payment
+
+```java
+pos.setAmount(amount, cashbackAmount, "156", TransactionType.GOODS);
+pos.doTrade(60);
+```
+
+### onDoTradeResult
+
+<Tabs items={['CHIP', 'NFC', 'MSR']}>
+  <Tab>
+  ```java
+  @Override
+  public void onDoTradeResult(DoTradeResult result, Hashtable<String, String> decodeData) {
+      ...
+      } else if (result == DoTradeResult.ICC) {
+          statusEditText.setText(getString(R.string.icc_card_inserted));
+          TRACE.d("EMV ICC Start")
+          pos.doEmvApp(EmvOption.START); // Start EMV application processing
+      }
+      ...
+  }
+  ```
+  </Tab>
+  <Tab>
+  ```java
+  // NFC implementation
+  ```
+  </Tab>
+  <Tab>
+  ```java
+  // MSR implementation
+  ```
+  </Tab>
+</Tabs>
+
+### EMV Application Selection
+
+```java
+@Override
+public void onRequestSelectEmvApp(ArrayList<String> appList) {
+    pos.selectEmvApp(position);   // position is the index of the chosen application
+    // pos.cancelSelectEmvApp();   // Cancel the transaction
+}
+```
+
+### PIN Entry
+
+<Tabs items={['smartpos', 'mpos', 'CR100']}>
+  <Tab>
+  ```java
+  @Override
+  public void onQposRequestPinResult(List<String> dataList, int offlinePinTimes) {
+      // draw the pin input keyboard, after finish the keyboard, then call the below api
+      pos.pinMapSync(value, 30); // the value is the keyboard pin coordinate position
+  }
+  ```
+  </Tab>
+  <Tab>
+  ```java
+  // mPOS PIN entry implementation
+  ```
+  </Tab>
+  <Tab>
+  ```java
+  // CR100 PIN entry implementation
+  ```
+  </Tab>
+</Tabs>
+
+### Online Authorization
+
+```java
+@Override
+public void onRequestOnlineProcess(String tlv) {
+   // sending online message tlv data to backend server
+   response = sendTlvToServer();
+   ...
+   // send the received online processing result to POS
+   // response should contain tag 8A (Authorisation Response Code) and tag 91 (Issuer Authentication Data)
+   pos.sendOnlineProcessResult(response);
+}
+```
+
+### Confirm Payment
+
+```java
+@Override
+public void onRequestTransactionResult(TransactionResult transactionResult) {
+    if (transactionResult == TransactionResult.APPROVED) {
+        // Transaction approved
+    } else if (transactionResult == TransactionResult.TERMINATED) {
+        // Transaction terminated
+    } else if (transactionResult == TransactionResult.DECLINED) {
+        // Transaction declined
+    } else if (transactionResult == TransactionResult.CANCEL) {
+        // Transaction cancelled
+    } else if (transactionResult == TransactionResult.CAPK_FAIL) {
+        // CAPK verification failed
+    } else if (transactionResult == TransactionResult.NOT_ICC) {
+        // Not an ICC card
+    } else if (transactionResult == TransactionResult.SELECT_APP_FAIL) {
+        // Application selection failed
+    } else if (transactionResult == TransactionResult.DEVICE_ERROR) {
+        // Device error
+    } else if (transactionResult == TransactionResult.CARD_NOT_SUPPORTED) {
+        // Card not supported
+    } else if (transactionResult == TransactionResult.MISSING_MANDATORY_DATA) {
+        // Missing mandatory data
+    } else if (transactionResult == TransactionResult.CARD_BLOCKED_OR_NO_EMV_APPS) {
+        // Card blocked or no EMV applications
+    } else if (transactionResult == TransactionResult.INVALID_ICC_DATA) {
+        // Invalid ICC data
+    }
+}
+```
+
+### Reversal Handling
+
+If the EMV chip card refuses the transaction, but the transaction was approved by the issuer, a reversal procedure should be initiated by the mobile app. The following callback can get the required data for doing reversal:
+
+```java
+@Override
+public void onReturnReversalData(String tlv) {
+    // Process reversal data
+    ...
+}
+```
+
+### Error Notification
+
+```java
+@Override
+public void onError(Error errorState) {
+    // Handle error state
+}
+```
+
+| Enum Value | Description |
+| ---------- | ----------- |
+| TIMEOUT | POS return result timed out |
+| COM_NOT_AVAILABLE | Function is not supported by firmware |
+| DEVICE_RESET | Reset POS status |
+| DEVICE_BUSY | Terminal is processing task, you need to wait for the callback result of this task before calling the new function |
+| INPUT_OUT_OF_RANGE | The length of the input data out of the range |
+| INPUT_INVALID_FORMAT | The length of the input data does not match the required length |
+| INPUT_INVALID | The length or format of the input data does not match the requirements |
+| AMOUNT_OUT_OF_LIMIT | The length of the input data out of the range |
+| MAC_ERROR | Data error in the sent instruction |
+
+</Steps>

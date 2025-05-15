@@ -1,0 +1,234 @@
+diff --git a/components/FeatureCard.jsx b/components/FeatureCard.jsx
+index 974d7d2..3e6a4fd 100644
+--- a/components/FeatureCard.jsx
++++ b/components/FeatureCard.jsx
+@@ -12,16 +12,33 @@ export default function FeatureCard({
+ 
+   // Handle image path with correct basePath for both dev and production
+   const imagePath = image.startsWith('/') ? image : `/${image}`;
+-  
+-  // Create GitHub CDN URL for the image
++
++  // Get the image name without extension for WebP conversion
++  const imagePathInfo = imagePath.match(/(.+)\.([^.]+)$/);
++  if (!imagePathInfo) {
++    console.error(`Invalid image path: ${imagePath}`);
++    return null;
++  }
++
++  const imagePathWithoutExt = imagePathInfo[1];
++  const imageExt = imagePathInfo[2];
++
++  // Create WebP path
++  const webpPath = `${imagePathWithoutExt.replace('/images/', '/images/webp/')}.webp`;
++
++  // Create GitHub CDN URLs for WebP and original images
+   const getGithubCdnUrl = (path) => {
+     // Remove leading slash if present
+     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+     return `https://raw.githubusercontent.com/DspreadOrg/docs/main/public/${cleanPath}`;
+   };
+-  
+-  // Use local path in development, CDN in production
+-  const imageSrc = isDev
++
++  // Use local paths in development, CDN in production
++  const webpImageSrc = isDev
++    ? `${basePath}${webpPath}`
++    : getGithubCdnUrl(webpPath);
++
++  const originalImageSrc = isDev
+     ? `${basePath}${imagePath}`
+     : getGithubCdnUrl(imagePath);
+ 
+@@ -38,17 +55,21 @@ export default function FeatureCard({
+     <div className="feature-card">
+       <div className="feature-card-content">
+         <a href={fullPath} className="feature-card-image-link">
+-          <img
+-            src={imageSrc}
+-            alt={linkText || 'Feature image'}
+-            className="feature-card-image"
+-            loading="lazy"
+-            onError={(e) => {
+-              console.error(`Failed to load image: ${imageSrc}`);
+-              e.target.onerror = null;
+-              e.target.src = fallbackImagePath;
+-            }}
+-          />
++          <picture>
++            <source srcSet={webpImageSrc} type="image/webp" />
++            <source srcSet={originalImageSrc} type={`image/${imageExt}`} />
++            <img
++              src={originalImageSrc}
++              alt={linkText || 'Feature image'}
++              className="feature-card-image"
++              loading="lazy"
++              onError={(e) => {
++                console.error(`Failed to load image: ${e.target.src}`);
++                e.target.onerror = null;
++                e.target.src = fallbackImagePath;
++              }}
++            />
++          </picture>
+         </a>
+       </div>
+       <a href={fullPath} className="feature-card-link-text">
+diff --git a/components/ResponsiveImage.jsx b/components/ResponsiveImage.jsx
+index df1c815..2f01892 100644
+--- a/components/ResponsiveImage.jsx
++++ b/components/ResponsiveImage.jsx
+@@ -16,16 +16,33 @@ export default function ResponsiveImage({
+ 
+   // Handle image path with correct basePath for both dev and production
+   const imagePath = src.startsWith('/') ? src : `/${src}`;
+-  
+-  // Create GitHub CDN URL for the image
++
++  // Get the image name without extension for WebP conversion
++  const imagePathInfo = imagePath.match(/(.+)\.([^.]+)$/);
++  if (!imagePathInfo) {
++    console.error(`Invalid image path: ${imagePath}`);
++    return null;
++  }
++
++  const imagePathWithoutExt = imagePathInfo[1];
++  const imageExt = imagePathInfo[2];
++
++  // Create WebP path
++  const webpPath = `${imagePathWithoutExt.replace('/images/', '/images/webp/')}.webp`;
++
++  // Create GitHub CDN URLs for WebP and original images
+   const getGithubCdnUrl = (path) => {
+     // Remove leading slash if present
+     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+     return `https://raw.githubusercontent.com/DspreadOrg/docs/main/public/${cleanPath}`;
+   };
+-  
+-  // Use local path in development, CDN in production
+-  const imageSrc = isDev
++
++  // Use local paths in development, CDN in production
++  const webpImageSrc = isDev
++    ? `${basePath}${webpPath}`
++    : getGithubCdnUrl(webpPath);
++
++  const originalImageSrc = isDev
+     ? `${basePath}${imagePath}`
+     : getGithubCdnUrl(imagePath);
+ 
+@@ -35,20 +52,24 @@ export default function ResponsiveImage({
+     : getGithubCdnUrl('dspread-logo.png');
+ 
+   return (
+-    <img
+-      src={imageSrc}
+-      alt={alt || 'Image'}
+-      className={className}
+-      style={style}
+-      width={width}
+-      height={height}
+-      loading="lazy"
+-      onError={(e) => {
+-        console.error(`Failed to load image: ${imageSrc}`);
+-        e.target.onerror = null;
+-        e.target.src = fallbackImagePath;
+-      }}
+-      {...props}
+-    />
++    <picture>
++      <source srcSet={webpImageSrc} type="image/webp" />
++      <source srcSet={originalImageSrc} type={`image/${imageExt}`} />
++      <img
++        src={originalImageSrc}
++        alt={alt || 'Image'}
++        className={className}
++        style={style}
++        width={width}
++        height={height}
++        loading="lazy"
++        onError={(e) => {
++          console.error(`Failed to load image: ${e.target.src}`);
++          e.target.onerror = null;
++          e.target.src = fallbackImagePath;
++        }}
++        {...props}
++      />
++    </picture>
+   );
+ }
+diff --git a/utils/imageUtils.js b/utils/imageUtils.js
+index e95fad6..1ffb0f2 100644
+--- a/utils/imageUtils.js
++++ b/utils/imageUtils.js
+@@ -5,27 +5,64 @@
+ /**
+  * Creates a GitHub CDN URL for an image
+  * @param {string} path - The path to the image (e.g., '/images/example.png')
++ * @param {boolean} useWebP - Whether to use WebP format if available
+  * @returns {string} The GitHub CDN URL
+  */
+-export function getGithubCdnUrl(path) {
++export function getGithubCdnUrl(path, useWebP = false) {
+   // Remove leading slash if present
+   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
++
++  if (useWebP) {
++    // Convert path to WebP format (e.g., images/file.png -> images/webp/file.webp)
++    const pathInfo = cleanPath.match(/(.+)\.([^.]+)$/);
++    if (pathInfo) {
++      const pathWithoutExt = pathInfo[1];
++      return `https://raw.githubusercontent.com/DspreadOrg/docs/main/public/${pathWithoutExt.replace('images/', 'images/webp/')}.webp`;
++    }
++  }
++
+   return `https://raw.githubusercontent.com/DspreadOrg/docs/main/public/${cleanPath}`;
+ }
+ 
+ /**
+- * Creates an image source with proper path handling for development and production
++ * Creates image sources with WebP and fallback support
+  * @param {string} path - The path to the image (e.g., '/images/example.png')
+  * @param {boolean} isDev - Whether the app is running in development mode
+  * @param {string} basePath - The base path for the app
+- * @returns {string} The image source URL
++ * @returns {Object} An object with webpSrc, originalSrc, and imageType
+  */
+-export function getImageSrc(path, isDev, basePath = '') {
++export function getImageSources(path, isDev, basePath = '') {
+   // Handle image path with correct basePath
+   const imagePath = path.startsWith('/') ? path : `/${path}`;
+-  
++
++  // Get the image name without extension
++  const imagePathInfo = imagePath.match(/(.+)\.([^.]+)$/);
++  if (!imagePathInfo) {
++    return {
++      webpSrc: null,
++      originalSrc: null,
++      imageType: null
++    };
++  }
++
++  const imagePathWithoutExt = imagePathInfo[1];
++  const imageExt = imagePathInfo[2];
++
++  // Create WebP path
++  const webpPath = `${imagePathWithoutExt.replace('/images/', '/images/webp/')}.webp`;
++
+   // Use local paths in development, CDN in production
+-  return isDev
++  const webpImageSrc = isDev
++    ? `${basePath}${webpPath}`
++    : getGithubCdnUrl(imagePath, true);
++
++  const originalImageSrc = isDev
+     ? `${basePath}${imagePath}`
+     : getGithubCdnUrl(imagePath);
++
++  return {
++    webpSrc: webpImageSrc,
++    originalSrc: originalImageSrc,
++    imageType: imageExt
++  };
+ }

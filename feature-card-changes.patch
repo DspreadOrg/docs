@@ -1,0 +1,62 @@
+diff --git a/components/FeatureCard.jsx b/components/FeatureCard.jsx
+index 959f70f..522506a 100644
+--- a/components/FeatureCard.jsx
++++ b/components/FeatureCard.jsx
+@@ -9,29 +9,31 @@ export default function FeatureCard({
+   const config = useConfig();
+   const basePath = config.basePath || '';
+ 
+-  // Handle image path - ensure it starts with a slash
+-  const imagePath = image.startsWith('/') ? image : `/${image}`;
++  // Always use local image path
++  const imageSrc = `${basePath}${image.startsWith('/') ? image : `/${image}`}`;
+ 
+-  // Handle link path - ensure it starts with a slash
++  // Handle link path - ensure it starts with a slash and add /developers prefix in production
++  const isDev = process.env.NODE_ENV === 'development';
+   const linkPath = link.startsWith('/') ? link : `/${link}`;
++  const fullPath = isDev ? `${basePath}${linkPath}` : `/developers${linkPath}`;
+ 
+   return (
+     <div className="feature-card">
+       <div className="feature-card-content">
+-        <a href={`${basePath}${linkPath}`} className="feature-card-image-link">
++        <a href={fullPath} className="feature-card-image-link">
+           <img
+-            src={`${basePath}${imagePath}`}
++            src={imageSrc}
+             alt={linkText || 'Feature image'}
+             className="feature-card-image"
+             onError={(e) => {
+-              console.error(`Failed to load image: ${basePath}${imagePath}`);
++              console.error(`Failed to load image: ${imageSrc}`);
+               e.target.onerror = null;
+-              e.target.src = `${basePath}/dspread-logo.png`; // Fallback image
++              e.target.src = `${basePath}/dspread-logo.png`;
+             }}
+           />
+         </a>
+       </div>
+-      <a href={`${basePath}${linkPath}`} className="feature-card-link-text">
++      <a href={fullPath} className="feature-card-link-text">
+         {linkText} &gt;
+       </a>
+     </div>
+diff --git a/components/FeatureCards.jsx b/components/FeatureCards.jsx
+index ba887ab..247822a 100644
+--- a/components/FeatureCards.jsx
++++ b/components/FeatureCards.jsx
+@@ -2,7 +2,12 @@ import React from 'react';
+ 
+ export default function FeatureCards({ children }) {
+   return (
+-    <div className="feature-cards">
++    <div className="feature-cards" style={{
++      display: 'grid',
++      gridTemplateColumns: 'repeat(3, 1fr)',
++      gap: '1.5rem',
++      margin: '2rem 0'
++    }}>
+       {children}
+     </div>
+   );

@@ -1,0 +1,95 @@
+---
+title: Getting Started
+description: Set up your development environment for Linux Terminals
+---
+
+import { FileTree } from 'nextra/components'
+
+# Getting Started
+
+## Preparation
+
+### Installation of Development Environment
+
+Follow the instructions in the [Development Environment Setup](https://github.com/DspreadOrg/qpos-linux-tools/blob/main/EnvironmentBuilding/DevelopEnvironmentGuide.md) to install the QPOS Plus Linux development environment.
+
+```shell
+git clone https://github.com/DspreadOrg/qpos-linux-tools.git
+```
+
+### Clone QPOS Plus Linux SDK and Demo
+
+In the command-line interface, navigate to your working directory and run the following command to clone the repository.
+
+```shell
+git clone https://github.com/DspreadOrg/qpos-linux.git
+```
+
+## Project Structure
+
+<FileTree>
+  <FileTree.Folder name="qpos-linux-main" defaultOpen>
+    <FileTree.Folder name="app_demo" defaultOpen>
+      <FileTree.Folder name="linux_pos_app" defaultOpen>
+        <FileTree.Folder name="lib" />
+        <FileTree.Folder name="src" defaultOpen>
+          <FileTree.Folder name="common_api" />
+          <FileTree.Folder name="custom_app" defaultOpen>
+            <FileTree.Folder name="http" />
+            <FileTree.Folder name="ota" />
+            <FileTree.Folder name="setting" />
+            <FileTree.Folder name="trans" defaultOpen>
+              <FileTree.File name="app_trans.c" />
+              <FileTree.File name="app_trans.h" />
+              <FileTree.File name="ui_card.c" />
+              <FileTree.File name="ui_card.h" />
+              <FileTree.File name="ui_emvSelectMultiApp.c" />
+            </FileTree.Folder>
+          </FileTree.Folder>
+          <FileTree.Folder name="project" defaultOpen>
+            <FileTree.File name="lvgl_porting.c" />
+            <FileTree.File name="proj_cfg.h" />
+            <FileTree.File name="task_handle.c" />
+            <FileTree.File name="ui_main.c" />
+          </FileTree.Folder>
+        </FileTree.Folder>
+      </FileTree.Folder>
+    </FileTree.Folder>
+    <FileTree.Folder name="qpos-linux-tools" />
+  </FileTree.Folder>
+</FileTree>
+
+## Compiling and Running Your First Application
+
+Below is a list of essential commands for managing apps with the PKG extension on VScode:
+
+- **PKG-STOP APP**: Stops the app linked to the project on the connected device.
+- **PKG-RUN APP**: Runs the app for the project on the connected device, provided it is installed.
+- **PKG-UNINSTALL APP**: Uninstalls the project's app from the connected device.
+- **PKG-INSTALL APP**: Installs the generated .apk file on the connected device.
+- **PKG-CLEAN**: Deletes the output file from the previous compilation.
+- **PKG-PACKAGE**: Packages compiled and resource files to create an installable APK.
+- **PKG-RECOMPILE**: Recompiles the project, cleans previous outputs, and creates new compilation files.
+- **PKG-COMPILE**: Compiles the project to produce the necessary compilation file.
+
+## Debugging and Deployment
+
+### Installing Application to Device
+
+Ensure the device is connected via USB and ADB is enabled:
+
+```shell
+adb install -r trio-linux\app_demo\linux_pos_app\release\linux_pos_app.apk
+```
+
+### Running Application
+
+```shell
+adb shell am start -n linux_pos_app/linux_pos_app
+```
+
+### Viewing Logs
+
+```shell
+adb logcat -s linux_pos_ap
+```
