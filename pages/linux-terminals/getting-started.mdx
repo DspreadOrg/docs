@@ -4,6 +4,7 @@ description: Set up your development environment for Linux Terminals
 ---
 
 import { FileTree } from 'nextra/components'
+import { Tabs, Tab } from 'nextra/components'
 
 # Getting Started
 
@@ -11,19 +12,28 @@ import { FileTree } from 'nextra/components'
 
 ### Installation of Development Environment
 
-Follow the instructions in the [Development Environment Setup](https://github.com/DspreadOrg/qpos-linux-tools/blob/main/EnvironmentBuilding/DevelopEnvironmentGuide.md) to install the QPOS Plus Linux development environment.
+Follow the instructions in the [Development Environment Setup](https://github.com/DspreadOrg/qpos-linux-tools/blob/main/EnvironmentBuilding/DevelopEnvironmentGuide.md) to install the Linux development environment.
 
 ```shell
 git clone https://github.com/DspreadOrg/qpos-linux-tools.git
 ```
 
-### Clone QPOS Plus Linux SDK and Demo
+### Clone Linux SDK and Demo
 
-In the command-line interface, navigate to your working directory and run the following command to clone the repository.
+In the command-line interface, navigate to your working directory and run the following command to clone the repository based on your terminal type.
 
-```shell
-git clone https://github.com/DspreadOrg/qpos-linux.git
-```
+<Tabs items={['D30', 'QPOS Plus']}>
+  <Tab>
+  ```shell
+  git clone https://github.com/DspreadOrg/D30-linux.git
+  ```
+  </Tab>
+  <Tab>
+  ```shell
+  git clone https://github.com/dspreadOrg/qpos-linux.git
+  ```
+  </Tab>
+</Tabs>
 
 ## Project Structure
 
@@ -79,7 +89,7 @@ Below is a list of essential commands for managing apps with the PKG extension o
 Ensure the device is connected via USB and ADB is enabled:
 
 ```shell
-adb install -r trio-linux\app_demo\linux_pos_app\release\linux_pos_app.apk
+adb install -r linux_pos_app\release\linux_pos_app.apk
 ```
 
 ### Running Application
@@ -91,5 +101,5 @@ adb shell am start -n linux_pos_app/linux_pos_app
 ### Viewing Logs
 
 ```shell
-adb logcat -s linux_pos_ap
+adb logcat -s linux_pos_app
 ```
