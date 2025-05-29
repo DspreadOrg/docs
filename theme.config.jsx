@@ -127,6 +127,8 @@ const config = {
   },
   sidebar: {
     defaultMenuCollapseLevel: 1,
+    toggleButton:true,
+    autoCollapse: true,
     titleComponent: ({ title, type }) =>
       type === 'separator' ? (
         <div className="separator-title">
