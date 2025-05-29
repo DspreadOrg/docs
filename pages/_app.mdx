@@ -1,9 +1,12 @@
 import "../styles/custom.css";
+import CopilotKitWrapper from "../components/CopilotKitWrapper";
 
 export default function MyApp({ Component, pageProps }) {
   return (
-    <>
+    <CopilotKitWrapper>
       <Component {...pageProps} />
-    </>
-  )
+    </CopilotKitWrapper>
+  );
 }
+
+
