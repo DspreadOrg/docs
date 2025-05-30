@@ -152,3 +152,262 @@
     aspect-ratio: 16/10; /* Slightly taller on mobile */
   }
 }
+
+/* CopilotKit code display optimization */
+.copilot-sidebar pre {
+  background-color: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 6px !important;
+  padding: 1rem !important;
+  margin: 0.75rem 0 !important;
+  overflow-x: auto !important;
+  font-family: 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace !important;
+  font-size: 0.875rem !important;
+  line-height: 1.5 !important;
+}
+
+.copilot-sidebar code {
+  background-color: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 3px !important;
+  padding: 0.125rem 0.25rem !important;
+  font-family: 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace !important;
+  font-size: 0.875rem !important;
+  color: #1e293b !important;
+}
+
+.copilot-sidebar pre code {
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  color: inherit !important;
+}
+
+/* Dark mode support for CopilotKit code display */
+.dark .copilot-sidebar pre {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+.dark .copilot-sidebar code {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+  color: #e2e8f0 !important;
+}
+
+.dark .copilot-sidebar pre code {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+/* CopilotKit message formatting */
+.copilot-sidebar .copilot-message {
+  line-height: 1.6 !important;
+}
+
+.copilot-sidebar .copilot-message p {
+  margin-bottom: 0.75rem !important;
+}
+
+.copilot-sidebar .copilot-message ul,
+.copilot-sidebar .copilot-message ol {
+  padding-left: 1.5rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.copilot-sidebar .copilot-message li {
+  margin-bottom: 0.25rem !important;
+}
+
+/* CopilotKit link styling */
+.copilot-sidebar a {
+  color: #3b82f6 !important;
+  text-decoration: underline !important;
+}
+
+.copilot-sidebar a:hover {
+  color: #1d4ed8 !important;
+}
+
+.dark .copilot-sidebar a {
+  color: #60a5fa !important;
+}
+
+.dark .copilot-sidebar a:hover {
+  color: #93c5fd !important;
+}
+
+/* CopilotKit code syntax highlighting improvement */
+.copilot-sidebar .hljs-keyword {
+  color: #d73a49 !important;
+  font-weight: 600 !important;
+}
+
+.copilot-sidebar .hljs-string {
+  color: #032f62 !important;
+}
+
+.copilot-sidebar .hljs-comment {
+  color: #6a737d !important;
+  font-style: italic !important;
+}
+
+.copilot-sidebar .hljs-number {
+  color: #005cc5 !important;
+}
+
+.copilot-sidebar .hljs-function {
+  color: #6f42c1 !important;
+}
+
+/* Dark mode syntax highlighting */
+.dark .copilot-sidebar .hljs-keyword {
+  color: #ff7b72 !important;
+}
+
+.dark .copilot-sidebar .hljs-string {
+  color: #a5d6ff !important;
+}
+
+.dark .copilot-sidebar .hljs-comment {
+  color: #8b949e !important;
+}
+
+.dark .copilot-sidebar .hljs-number {
+  color: #79c0ff !important;
+}
+
+.dark .copilot-sidebar .hljs-function {
+  color: #d2a8ff !important;
+}
+
+/* CopilotKit scrollbar styling */
+.copilot-sidebar pre::-webkit-scrollbar {
+  height: 6px !important;
+}
+
+.copilot-sidebar pre::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+  border-radius: 3px !important;
+}
+
+.copilot-sidebar pre::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important;
+  border-radius: 3px !important;
+}
+
+.copilot-sidebar pre::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8 !important;
+}
+
+.dark .copilot-sidebar pre::-webkit-scrollbar-track {
+  background: #334155 !important;
+}
+
+.dark .copilot-sidebar pre::-webkit-scrollbar-thumb {
+  background: #475569 !important;
+}
+
+.dark .copilot-sidebar pre::-webkit-scrollbar-thumb:hover {
+  background: #64748b !important;
+}
+
+/* CopilotKit responsive design for code blocks */
+@media (max-width: 768px) {
+  .copilot-sidebar pre {
+    font-size: 0.75rem !important;
+    padding: 0.75rem !important;
+    margin: 0.5rem 0 !important;
+  }
+  
+  .copilot-sidebar code {
+    font-size: 0.75rem !important;
+  }
+}
+
+/* CopilotKit copy button styling */
+.copilot-sidebar .copy-button {
+  position: absolute !important;
+  top: 0.5rem !important;
+  right: 0.5rem !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 4px !important;
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.75rem !important;
+  color: #64748b !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.copilot-sidebar .copy-button:hover {
+  background: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+.dark .copilot-sidebar .copy-button {
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #94a3b8 !important;
+}
+
+.dark .copilot-sidebar .copy-button:hover {
+  background: #475569 !important;
+  color: #e2e8f0 !important;
+}
+
+/* CopilotKit code block positioning */
+.copilot-sidebar pre {
+  position: relative !important;
+}
+
+/* Ensure proper spacing between elements */
+.copilot-sidebar .copilot-message > *:first-child {
+  margin-top: 0 !important;
+}
+
+.copilot-sidebar .copilot-message > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* CopilotKit: display single-word code blocks as normal text */
+.copilot-sidebar pre code:only-child {
+  background: none !important;
+  border: none !important;
+  color: inherit !important;
+  font-size: 1em !important;
+  padding: 0 !important;
+  font-family: inherit !important;
+}
+
+/* CopilotKit: display inline code with only one word as normal text, but keep background for real code */
+.copilot-sidebar code {
+  padding: 0.1em 0.3em !important;
+  border-radius: 3px !important;
+}
+.copilot-sidebar p > code:only-child {
+  background: none !important;
+  border: none !important;
+  color: inherit !important;
+  font-size: 1em !important;
+  font-family: inherit !important;
+  padding: 0 !important;
+}
+
+/* CopilotKit: make code blocks with only one line look like normal text */
+.copilot-sidebar pre {
+  min-height: 2.2em;
+}
+.copilot-sidebar pre code {
+  display: block;
+  white-space: pre-wrap;
+}
+.copilot-sidebar pre code:only-child:not(:contains('\n')) {
+  background: none !important;
+  border: none !important;
+  color: inherit !important;
+  font-size: 1em !important;
+  font-family: inherit !important;
+  padding: 0 !important;
+}
