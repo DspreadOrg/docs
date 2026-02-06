@@ -14,7 +14,7 @@ import { Callout } from 'nextra/components'
 
   * **ADB enabled**: ADB commands help developers install or debug apps, which is not secure for payment terminals. We disable ADB on release version devices for security, and apps can only be installed by OTA with TMS.
   * **Debug watermark**: This helps avoid developer misuse of development samples and production devices. The debug watermark will be removed on release production devices.
-  * **Keystore**: The purpose of the keystore file is to prevent unknown apps from being installed on the device and breaking device security. You need to use the Dspread keystore file to sign your app to be able to install it on a debug device. For production devices, we will use your own keystore signature extracted from your signed APK, so that only you have permission to install apps on your device ([app.keystore](https://github.com/DspreadOrg/android/blob/master/pos_android_studio_demo/pos_android_studio_app/app.keystore)).
+  * **Keystore**: The purpose of the keystore file is to prevent unknown apps from being installed on the device and breaking device security. You need to use the Dspread keystore file to sign your app to be able to install it on a debug device. For production devices, we will use your own keystore signature extracted from your signed APK, so that only you have permission to install apps on your device ([app.keystore](https://github.com/DspreadOrg/android/blob/ec9f6d055db6e0b1c2d5056960d558fcb19e9790/pos_android_studio_demo/pos_android_app/app.keystore)).
 </Callout>
 
 ## Smart POS SDK
