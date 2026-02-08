@@ -15,6 +15,29 @@ module.exports = withNextra({
   basePath,
   assetPrefix: basePath,
   trailingSlash: true,
+  transpilePackages: [
+    '@copilotkit/react-core',
+    '@copilotkit/react-ui',
+    '@copilotkitnext/react',
+  ],
+  webpack: (config) => {
+    // Allow importing global CSS from node_modules (needed by CopilotKit/KaTeX)
+    const cssRules = config.module.rules.find(
+      (rule) => typeof rule.oneOf === 'object'
+    );
+    if (cssRules) {
+      cssRules.oneOf.forEach((rule) => {
+        if (
+          rule.sideEffects === false &&
+          rule.test &&
+          rule.test.toString().includes('css')
+        ) {
+          delete rule.sideEffects;
+        }
+      });
+    }
+    return config;
+  },
 })
 
 // If you have other Next.js configurations, you can pass them as the parameter above
