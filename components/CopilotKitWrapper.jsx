@@ -55,7 +55,7 @@ const INSTRUCTIONS = `You are the Dspread Documentation Assistant.
 ## CONVERSATION FLOW — follow this order every time.
 
 ### Step 1 — Identify the user's product
-Before giving integration advice, ALWAYS ask or confirm which product the user has.
+Before giving integration advice, ALWAYS identify the user's product type.
 Use this classification:
 
 | Category | Terminal Models | Docs Section |
@@ -65,17 +65,15 @@ Use this classification:
 | **Linux Terminal** | D30-linux, QPOS-linux (Linux-based POS) | Linux Terminals |
 | **Cloud Speaker** | DS10, DS50, DS200 (audio payment notification) | Cloud Speaker |
 
+IMPORTANT: Users often start by clicking a product category from the suggestion buttons shown in the welcome screen. When the user's FIRST message matches a product category (e.g. "📱 Smart POS" or "I'm using a Smart POS terminal"), IMMEDIATELY:
+1. Acknowledge their product choice
+2. Call the **selectProductType** action to show the interactive product selector card for visual confirmation
+3. Then navigate to the relevant starting page and provide an overview
+
 If the user mentions a specific model (e.g. "D60", "QPOS mini", "CR100", "DS50"), map it
-to the right category and proceed.
+to the right category and proceed directly — no need to call selectProductType.
 
-If the user's question is ambiguous or does not mention a model, ask:
-"Could you tell me which terminal model you are using? For example:
-- **Smart POS**: D20, D30, D50, D60, D70, D80, D80K
-- **Mobile Reader (mPOS)**: QPOS mini, QPOS Cute, CR100, QPOS Plus pinpad
-- **Linux Terminal**: D30-linux, QPOS-linux
-- **Cloud Speaker**: DS10, DS50, DS200
-
-This helps me give you the most relevant documentation."
+If the user's question is ambiguous or does not mention a model, call **selectProductType** to show the interactive product picker card.
 
 ### Step 2 — Give targeted advice
 Once the product type is known:
@@ -513,12 +511,40 @@ ${relatedSuggestions}
 Make sure each suggestion is a natural question a developer would ask while reading this specific page.`;
   }, [currentPage, currentPageHeadings]);
 
-  // ─ Contextual suggestions — dynamically generated per page ───────────
+  // ─ Welcome suggestions — static product categories (before first message) ─
+  useCopilotChatSuggestions({
+    suggestions: [
+      {
+        title: "📱 Smart POS (Android)",
+        message: "I'm using a Smart POS terminal (D20, D30, D50, D60, D70, D80, D80K). Help me get started with Android SDK integration.",
+        className: "welcome-product-suggestion welcome-smartpos",
+      },
+      {
+        title: "📲 mPOS / Mobile Reader",
+        message: "I'm using an mPOS mobile reader (QPOS mini, QPOS Cute, CR100, QPOS Plus). Help me connect it to my app.",
+        className: "welcome-product-suggestion welcome-mpos",
+      },
+      {
+        title: "🐧 Linux Terminal",
+        message: "I'm using a Linux terminal (D30-linux, QPOS-linux). Help me set up the Linux SDK.",
+        className: "welcome-product-suggestion welcome-linux",
+      },
+      {
+        title: "🔊 Cloud Speaker",
+        message: "I'm using a Cloud Speaker (DS10, DS50, DS200). Help me set up audio payment notifications.",
+        className: "welcome-product-suggestion welcome-cloudspeaker",
+      },
+    ],
+    available: "before-first-message",
+  });
+
+  // ─ Contextual suggestions — dynamically generated per page (after 1st msg) ─
   useCopilotChatSuggestions(
     {
       instructions: suggestionInstructions,
       minSuggestions: 3,
       maxSuggestions: 5,
+      available: "after-first-message",
     },
     [currentPath],
   );
@@ -531,12 +557,7 @@ Make sure each suggestion is a natural question a developer would ask while read
           title: "Dspread Assistant",
           initial:
             "Welcome! I'm your Dspread documentation assistant. 👋\n\n" +
-            "To help you best, could you tell me which terminal you're working with?\n\n" +
-            "• **Smart POS** — D20, D30, D50, D60, D70, D80, D80K\n" +
-            "• **Mobile Reader (mPOS)** — QPOS mini, QPOS Cute, CR100, QPOS Plus\n" +
-            "• **Linux Terminal** — D30-linux, QPOS-linux\n" +
-            "• **Cloud Speaker** — DS10, DS50, DS200\n\n" +
-            "Or just ask any question and I'll guide you!",
+            "Choose your product type below to get started, or ask any question directly!",
         }}
         defaultOpen={true}
         clickOutsideToClose={false}

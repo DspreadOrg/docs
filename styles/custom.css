@@ -684,3 +684,108 @@
 .agentic-card-executing .agentic-card-badge {
   animation: agenticPulse 1.5s ease-in-out infinite;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* Welcome Product Category Suggestions — Agentic UI style              */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+/* Make the suggestion container grid-based for welcome cards */
+.copilotKitMessages footer .suggestions:has(.welcome-product-suggestion) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+/* Product category suggestion card styling */
+.copilotKitMessages footer .suggestions .welcome-product-suggestion {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px !important;
+  border-radius: 12px !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  border: 1.5px solid transparent !important;
+  background: linear-gradient(135deg, var(--product-bg-from), var(--product-bg-to)) !important;
+  color: var(--product-text) !important;
+  box-shadow: 0 2px 8px var(--product-shadow) !important;
+  transition: all 0.25s ease !important;
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.3;
+  min-height: 44px;
+}
+
+.copilotKitMessages footer .suggestions .welcome-product-suggestion:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 4px 16px var(--product-shadow-hover) !important;
+  border-color: var(--product-border) !important;
+}
+
+/* Smart POS — blue */
+.welcome-smartpos {
+  --product-bg-from: #eff6ff;
+  --product-bg-to: #dbeafe;
+  --product-text: #1e40af;
+  --product-border: #3b82f6;
+  --product-shadow: rgba(59, 130, 246, 0.1);
+  --product-shadow-hover: rgba(59, 130, 246, 0.25);
+}
+.dark .welcome-smartpos {
+  --product-bg-from: #1e293b;
+  --product-bg-to: #1e3a5f;
+  --product-text: #93c5fd;
+  --product-shadow: rgba(59, 130, 246, 0.15);
+  --product-shadow-hover: rgba(59, 130, 246, 0.35);
+}
+
+/* mPOS — purple */
+.welcome-mpos {
+  --product-bg-from: #f5f3ff;
+  --product-bg-to: #ede9fe;
+  --product-text: #5b21b6;
+  --product-border: #8b5cf6;
+  --product-shadow: rgba(139, 92, 246, 0.1);
+  --product-shadow-hover: rgba(139, 92, 246, 0.25);
+}
+.dark .welcome-mpos {
+  --product-bg-from: #1e1b2e;
+  --product-bg-to: #2e1f5e;
+  --product-text: #c4b5fd;
+  --product-shadow: rgba(139, 92, 246, 0.15);
+  --product-shadow-hover: rgba(139, 92, 246, 0.35);
+}
+
+/* Linux — green */
+.welcome-linux {
+  --product-bg-from: #ecfdf5;
+  --product-bg-to: #d1fae5;
+  --product-text: #065f46;
+  --product-border: #10b981;
+  --product-shadow: rgba(16, 185, 129, 0.1);
+  --product-shadow-hover: rgba(16, 185, 129, 0.25);
+}
+.dark .welcome-linux {
+  --product-bg-from: #1a2e25;
+  --product-bg-to: #1a3a2d;
+  --product-text: #6ee7b7;
+  --product-shadow: rgba(16, 185, 129, 0.15);
+  --product-shadow-hover: rgba(16, 185, 129, 0.35);
+}
+
+/* Cloud Speaker — amber */
+.welcome-cloudspeaker {
+  --product-bg-from: #fffbeb;
+  --product-bg-to: #fef3c7;
+  --product-text: #92400e;
+  --product-border: #f59e0b;
+  --product-shadow: rgba(245, 158, 11, 0.1);
+  --product-shadow-hover: rgba(245, 158, 11, 0.25);
+}
+.dark .welcome-cloudspeaker {
+  --product-bg-from: #2e2810;
+  --product-bg-to: #3a3010;
+  --product-text: #fcd34d;
+  --product-shadow: rgba(245, 158, 11, 0.15);
+  --product-shadow-hover: rgba(245, 158, 11, 0.35);
+}
