@@ -197,20 +197,30 @@ function AppWithContext({ children }) {
   }, [docsCtx]);
 
   // ─ find the matching page for the current route ──────────────────────
-  const currentPageContent = useMemo(() => {
-    if (!docsCtx?.pages || !currentPath) return "";
+  const currentPage = useMemo(() => {
+    if (!docsCtx?.pages || !currentPath) return null;
     // Normalize: strip basePath, trailing slash, hash, query
     const clean = currentPath
       .replace(/^\/docs/, "")
       .replace(/\/+$/, "")
       .replace(/[#?].*$/, "") || "/";
-    const page = docsCtx.pages.find((p) => {
+    return docsCtx.pages.find((p) => {
       const normRoute = p.route.replace(/\/+$/, "") || "/";
       return normRoute === clean;
-    });
-    if (!page) return "";
-    return `## ${page.title} (CURRENT PAGE)\nURL: ${page.url}\n\n${page.content}`;
+    }) || null;
   }, [docsCtx, currentPath]);
+
+  const currentPageContent = useMemo(() => {
+    if (!currentPage) return "";
+    return `## ${currentPage.title} (CURRENT PAGE)\nURL: ${currentPage.url}\n\n${currentPage.content}`;
+  }, [currentPage]);
+
+  // Extract headings from current page for suggestion generation
+  const currentPageHeadings = useMemo(() => {
+    if (!currentPage?.content) return [];
+    const matches = currentPage.content.match(/^#{1,3}\s+.+$/gm) || [];
+    return matches.map((h) => h.replace(/^#+\s+/, "")).slice(0, 8);
+  }, [currentPage]);
 
   // ─ 1. Current page — highest priority ────────────────────────────────
   useCopilotReadable({
@@ -295,39 +305,89 @@ Key differences:
     },
   });
 
-  // ─ Contextual suggestions — smart per-page with navigation intent ────
-  useCopilotChatSuggestions({
-    instructions: `Generate 3-5 helpful suggestion buttons based on where the user currently is.
+  // ─ Dynamic suggestion instructions based on current page ──────────────
+  const suggestionInstructions = useMemo(() => {
+    const pageTitle = currentPage?.title || "Overview";
+    const route = currentPage?.route || "/";
+    const headings = currentPageHeadings.length > 0
+      ? `\nThis page has these sections: ${currentPageHeadings.join(", ")}`
+      : "";
 
-IMPORTANT: When a user clicks a suggestion, your response MUST call the navigateToPage action
-to take them to the relevant page.
+    // Determine which sibling/related pages to suggest
+    let relatedSuggestions = "";
+    if (route === "/" || !currentPage) {
+      relatedSuggestions = `
+Suggest these topics (pick 3-5):
+- "I have a Smart POS (D30/D60), how do I start?"
+- "How do I set up a Linux terminal?"
+- "What's the difference between Smart POS and mPOS?"
+- "How do I integrate with a payment gateway?"
+- "I need help with EMV L3 certification"
+- "How does the Cloud Speaker work?"`;
+    } else if (route.startsWith("/android-terminals")) {
+      relatedSuggestions = `
+The user is reading Android terminal docs. Suggest questions about:
+- Accepting card payments (if not on that page)
+- Printing receipts (if not on that page)
+- Scanning QR/Bar codes (if not on that page)
+- Setting up the SDK (if not on that page)
+- Customizing the OS
+Also suggest 1-2 questions SPECIFIC to this page's content based on the headings.`;
+    } else if (route.startsWith("/linux-terminals")) {
+      relatedSuggestions = `
+The user is reading Linux terminal docs. Suggest questions about:
+- Getting started with Linux SDK (if not on that page)
+- Transaction flow details (if not on that page)
+- Common issues and troubleshooting
+- Best practices
+Also suggest 1-2 questions SPECIFIC to this page's content based on the headings.`;
+    } else if (route === "/cloud-speaker") {
+      relatedSuggestions = `
+The user is reading Cloud Speaker docs. Suggest questions about:
+- How to compile and build firmware
+- OTA update process
+- Device type configuration
+- How to set up the development environment`;
+    } else if (route.includes("payment-gateway") || route.includes("key-management")) {
+      relatedSuggestions = `
+The user is reading payment/encryption docs. Suggest questions about:
+- Decrypting POS terminal data with AWS
+- DUKPT key management
+- TR-31 key export/import
+- How to send encrypted data from the terminal`;
+    } else if (route === "/emv-l3-testing") {
+      relatedSuggestions = `
+The user is reading EMV L3 testing docs. Suggest questions about:
+- Which countries are supported for L3 certification
+- How to download test configurations for a specific country
+- What terminal models are supported
+- Firmware download for certification`;
+    } else {
+      relatedSuggestions = `
+Suggest 3-5 questions relevant to "${pageTitle}" based on the page content and headings.`;
+    }
 
-If the user is on the Overview/home page (/), suggest:
-- "I have a Smart POS (D20/D30/D60…), how do I start?" → navigate to /android-terminals/overview
-- "How do I set up a Linux terminal?" → navigate to /linux-terminals/getting-started
-- "What's the difference between Smart POS and mPOS?" → navigate to /how-terminal-works
-- "How do I integrate with a payment gateway?" → navigate to /payment-gateway-aws
-- "I need help with EMV L3 certification" → navigate to /emv-l3-testing
+    return `The user is currently on the "${pageTitle}" page (route: ${route}).${headings}
 
-If on Android pages, suggest:
-- "How do I accept card payments?" → navigate to /android-terminals/accept-card-payment
-- "How do I print receipts?" → navigate to /android-terminals/print-receipt
-- "How to scan QR codes?" → navigate to /android-terminals/scanner-qr-bar-code
-- "How do I set up the Android SDK?" → navigate to /android-terminals/set-up-integration
+Generate 3-5 short suggestion buttons (under 50 characters each) that are SPECIFIC to this page's content.
 
-If on Linux pages, suggest:
-- "Show me the transaction flow" → navigate to /linux-terminals/transaction-flow
-- "What are common issues?" → navigate to /linux-terminals/common-issues
-- "Best practices for Linux development" → navigate to /linux-terminals/best-practices
+IMPORTANT: When the user clicks a suggestion, your response MUST:
+1. Answer the question using content from the documentation
+2. Call the navigateToPage action if the answer relates to a different page
+${relatedSuggestions}
 
-If on payment/encryption pages, suggest:
-- "How to decrypt POS data with AWS?" → navigate to /payment-gateway-aws
-- "How to manage keys with TR-31?" → navigate to /key-management-aws
+Make sure each suggestion is a natural question a developer would ask while reading this specific page.`;
+  }, [currentPage, currentPageHeadings]);
 
-Keep suggestions short (under 50 characters) and actionable.`,
-    minSuggestions: 3,
-    maxSuggestions: 5,
-  });
+  // ─ Contextual suggestions — dynamically generated per page ───────────
+  useCopilotChatSuggestions(
+    {
+      instructions: suggestionInstructions,
+      minSuggestions: 3,
+      maxSuggestions: 5,
+    },
+    [currentPath],
+  );
 
   return (
     <>
