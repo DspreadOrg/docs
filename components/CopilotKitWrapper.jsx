@@ -15,8 +15,14 @@ import {
 } from "@copilotkit/react-ui";
 import "@copilotkit/react-ui/styles.css";
 import { useRouter } from "next/router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchAllGithubContent } from "../utils/fetchGithubContent";
+import {
+  NavigationCard,
+  ProductSelector,
+  RelatedPagesCard,
+  ProgressCard,
+} from "./AgenticUI";
 
 const DOCS = "https://dspreadorg.github.io/docs";
 
@@ -79,7 +85,18 @@ Once the product type is known:
 - **Cloud Speaker**: Guide through build process. Direct to Cloud Speaker page.
 
 ### Step 3 — Always use the navigateToPage action
-When your answer relates to a specific documentation page, call the **navigateToPage** action to navigate the user's browser to that page. This is MANDATORY — do not just provide links, actively navigate.
+When your answer relates to a specific documentation page, call the **navigateToPage** action to navigate the user's browser to that page. This is MANDATORY — do not just provide links, actively navigate. A styled navigation card will appear in the chat.
+
+### Step 4 — Use Agentic UI actions for better UX
+You have several visual actions that render interactive cards in the chat:
+
+1. **selectProductType** — At the START of a conversation, if the user's product type is unknown, call this action. It shows an interactive product selector card with buttons. Wait for the user's choice before proceeding.
+
+2. **showRelatedPages** — At the END of your answer, call this to show a card with clickable links to related documentation pages. Always include 2-4 relevant pages.
+
+3. **showIntegrationGuide** — When walking a user through a multi-step process (SDK setup, payment flow, certification), call this to show a numbered step-by-step card. Update the currentStep index as you progress.
+
+CRITICAL: These actions render visual UI IN the chat. Use them proactively to create a rich, interactive experience. Don't just use text when a card would be more helpful.
 
 ## PAGE ROUTE MAP (use these exact routes with navigateToPage):
 - Overview: /
@@ -262,7 +279,19 @@ Key differences:
 - Cloud Speaker is audio notification device with custom firmware`,
   });
 
+  // ─ helper for child actions that need to navigate ─────────────────────
+  const handleNavigate = useCallback(
+    (route) => {
+      const normalized = (route || "").replace(/\/+$/, "") || "/";
+      if (VALID_ROUTES.includes(normalized)) {
+        router.push(normalized);
+      }
+    },
+    [router],
+  );
+
   // ─ Navigation action — AI calls this to jump to a docs page ──────────
+  // Now with AGENTIC UI: renders a styled card inline in the chat.
   useCopilotAction({
     name: "navigateToPage",
     description:
@@ -303,6 +332,111 @@ Key differences:
       router.push(normalized);
       return `Navigated to "${pageTitle}" (${normalized})`;
     },
+    // ── Agentic UI: show navigation card in chat ──
+    render: ({ args, status }) => (
+      <NavigationCard
+        route={args?.route || "/"}
+        pageTitle={args?.pageTitle || ""}
+        status={status}
+      />
+    ),
+  });
+
+  // ─ Product selector action — interactive product type picker ──────────
+  // Uses renderAndWaitForResponse: the AI pauses while user picks a product.
+  useCopilotAction({
+    name: "selectProductType",
+    description:
+      "Show an interactive product type selector card. Call this when you need " +
+      "the user to choose their product type (Smart POS, mPOS, Linux, Cloud Speaker) " +
+      "and you want to present a visual picker instead of asking via text. " +
+      "ONLY call this once at the start of a conversation when the product type is unknown.",
+    parameters: [],
+    renderAndWaitForResponse: ({ respond, status }) => (
+      <ProductSelector respond={respond} status={status} />
+    ),
+  });
+
+  // ─ Show related pages action — displays a grid of related pages ───────
+  useCopilotAction({
+    name: "showRelatedPages",
+    description:
+      "Show a card with related documentation pages. Call this when you want to " +
+      "recommend multiple pages to the user, for example at the end of an answer. " +
+      "Pass an array of pages with route and title.",
+    parameters: [
+      {
+        name: "pages",
+        type: "object[]",
+        description: "Array of related pages to display",
+        attributes: [
+          {
+            name: "route",
+            type: "string",
+            description: "Page route (must be a valid route from PAGE ROUTE MAP)",
+            required: true,
+          },
+          {
+            name: "title",
+            type: "string",
+            description: "Human-readable page title",
+            required: true,
+          },
+        ],
+        required: true,
+      },
+    ],
+    handler: ({ pages }) => {
+      return `Showing ${(pages || []).length} related pages.`;
+    },
+    render: ({ args, status }) => (
+      <RelatedPagesCard
+        pages={args?.pages || []}
+        status={status}
+        onNavigate={handleNavigate}
+      />
+    ),
+  });
+
+  // ─ Progress/guide action — shows step-by-step integration guide ───────
+  useCopilotAction({
+    name: "showIntegrationGuide",
+    description:
+      "Show a step-by-step progress card for integration guidance. " +
+      "Use this when walking a user through a multi-step process like " +
+      "SDK setup, payment integration, or certification. " +
+      "Provide the list of steps and the current step index (0-based).",
+    parameters: [
+      {
+        name: "title",
+        type: "string",
+        description: "Title of the integration guide. E.g. 'Android SDK Setup'",
+        required: true,
+      },
+      {
+        name: "steps",
+        type: "string[]",
+        description: "List of step descriptions in order.",
+        required: true,
+      },
+      {
+        name: "currentStep",
+        type: "number",
+        description: "The index of the current step being worked on (0-based).",
+        required: true,
+      },
+    ],
+    handler: ({ title, steps, currentStep }) => {
+      return `Integration guide: "${title}" — step ${currentStep + 1} of ${(steps || []).length}`;
+    },
+    render: ({ args, status }) => (
+      <ProgressCard
+        title={args?.title || "Guide"}
+        steps={args?.steps || []}
+        currentStep={args?.currentStep ?? 0}
+        status={status}
+      />
+    ),
   });
 
   // ─ Dynamic suggestion instructions based on current page ──────────────
