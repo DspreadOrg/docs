@@ -20,11 +20,28 @@ import { fetchAllGithubContent } from "../utils/fetchGithubContent";
 
 const DOCS = "https://dspreadorg.github.io/docs";
 
-// Resolve basePath at runtime so the JSON fetch works in both dev & prod.
-const BASE_PATH =
-  typeof window !== "undefined" && window.__NEXT_DATA__?.basePath
-    ? window.__NEXT_DATA__.basePath
-    : "";
+// Valid routes — used to validate AI navigation and build full URLs.
+const VALID_ROUTES = [
+  "/",
+  "/plan-your-integration",
+  "/how-terminal-works",
+  "/android-terminals/overview",
+  "/android-terminals/set-up-integration",
+  "/android-terminals/accept-card-payment",
+  "/android-terminals/print-receipt",
+  "/android-terminals/scanner-qr-bar-code",
+  "/android-terminals/customize-os",
+  "/linux-terminals/getting-started",
+  "/linux-terminals/transaction-flow",
+  "/linux-terminals/best-practices",
+  "/linux-terminals/common-issues",
+  "/linux-terminals/additional-resources",
+  "/cloud-speaker",
+  "/key-management-aws",
+  "/payment-gateway-aws",
+  "/emv-l3-testing",
+  "/tms-larktms",
+];
 
 // ── System prompt ───────────────────────────────────────────────────────
 const INSTRUCTIONS = `You are the Dspread Documentation Assistant.
@@ -94,29 +111,34 @@ You have:
   C) CURRENT PAGE — the page the user is viewing right now; prioritize it.
 Use ONLY these sources. NEVER fabricate or guess.
 
-**Rule 2 — 80 %+ direct quotes with source links.**
-Most of every answer MUST be verbatim quotes (> blockquote) or exact code from
-the documentation/GitHub repos. Every quote MUST include a source link.
+**Rule 2 — EVERY paragraph MUST have a clickable source link.**
+This is CRITICAL. After EVERY quote, code block, or factual statement, you MUST
+insert a clickable markdown link to the source page in this exact format:
+  — [Page Title](${DOCS}/page-path/)
+The link MUST use the full URL starting with ${DOCS}.
+NEVER write a response without source links. If you have 3 paragraphs, you need at least 3 links.
 
 **Rule 3 — If not covered, say so.**
 If the context doesn't cover the topic: "Official documentation does not cover this topic yet."
 
 **Rule 4 — Navigate proactively.**
-After answering, ALWAYS call navigateToPage to send the user to the most relevant
-documentation page for their question.
+After answering, ALWAYS call navigateToPage to navigate the browser. Use ONLY
+routes from the PAGE ROUTE MAP above. NEVER invent routes that are not in the map.
 
-## RESPONSE FORMAT
+## RESPONSE FORMAT — follow exactly
 
 > Verbatim quote from documentation…
-— [Page Title](${DOCS}/page-path)
+
+— [Page Title](${DOCS}/page-path/)
 
 \`\`\`language
 // exact code from official source
 \`\`\`
-— [Source](url)
+— [Source](${DOCS}/page-path/)
 
-📖 References:
-- [Page 1](link)
+📖 **References** (MANDATORY — list every page cited with full URL):
+- [Page Title 1](${DOCS}/page-path-1/)
+- [Page Title 2](${DOCS}/page-path-2/)
 
 ## Official Code Repositories
 - Android SDK: https://github.com/DspreadOrg/android
@@ -141,7 +163,9 @@ function AppWithContext({ children }) {
 
   // ─ fetch docs-context.json (generated at build time) ─────────────────
   useEffect(() => {
-    fetch(`${BASE_PATH}/docs-context.json`)
+    // Use router.basePath (reliable) instead of module-scope constant
+    const bp = router.basePath || "";
+    fetch(`${bp}/docs-context.json`)
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
@@ -150,7 +174,7 @@ function AppWithContext({ children }) {
       .catch((err) =>
         console.warn("[CopilotKit] Could not load docs-context.json:", err)
       );
-  }, []);
+  }, [router.basePath]);
 
   // ─ fetch GitHub repo content (cached in sessionStorage) ──────────────
   useEffect(() => {
@@ -234,14 +258,16 @@ Key differences:
     description:
       "Navigate the user's browser to a specific documentation page. " +
       "Call this EVERY TIME your answer relates to a specific page. " +
-      "Use the route from the PAGE ROUTE MAP in your instructions.",
+      "ONLY use routes from the PAGE ROUTE MAP. Valid routes: " +
+      VALID_ROUTES.join(", "),
     parameters: [
       {
         name: "route",
         type: "string",
         description:
-          'The page route to navigate to, e.g. "/android-terminals/accept-card-payment" or "/linux-terminals/getting-started". Must start with "/".',
+          'The page route to navigate to. MUST be one of the valid routes from the PAGE ROUTE MAP. Example: "/android-terminals/accept-card-payment"',
         required: true,
+        enum: VALID_ROUTES,
       },
       {
         name: "pageTitle",
@@ -251,11 +277,21 @@ Key differences:
       },
     ],
     handler: ({ route, pageTitle }) => {
-      if (route && route.startsWith("/")) {
-        router.push(route);
-        return `Navigated to "${pageTitle}" (${route})`;
+      // Normalize: strip trailing slash for comparison
+      const normalized = (route || "").replace(/\/+$/, "") || "/";
+      if (!VALID_ROUTES.includes(normalized)) {
+        // Find closest match
+        const match = VALID_ROUTES.find((r) =>
+          r.includes(normalized.split("/").pop())
+        );
+        if (match) {
+          router.push(match);
+          return `Navigated to "${pageTitle}" (${match}) [auto-corrected from ${route}]`;
+        }
+        return `Invalid route "${route}". Valid routes: ${VALID_ROUTES.join(", ")}`;
       }
-      return "Invalid route provided.";
+      router.push(normalized);
+      return `Navigated to "${pageTitle}" (${normalized})`;
     },
   });
 
