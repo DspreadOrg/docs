@@ -9,6 +9,9 @@ const basePath = isDev ? '' : '/docs'
 
 module.exports = withNextra({
   output: 'export',
+  experimental: {
+    esmExternals: 'loose',
+  },
   images: {
     unoptimized: true,
   },
@@ -19,6 +22,7 @@ module.exports = withNextra({
     '@copilotkit/react-core',
     '@copilotkit/react-ui',
     '@copilotkitnext/react',
+    'react-syntax-highlighter',
   ],
   webpack: (config) => {
     // Allow importing global CSS from node_modules (needed by CopilotKit/KaTeX)
