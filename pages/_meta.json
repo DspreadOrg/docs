@@ -14,7 +14,7 @@
     "newWindow": true
   },
   "cloud-speaker": "Cloud Speaker",
-  "tms-larktms": "TMS/LarkTMS",
+  "tms-larktms": "TMS/SmartTMS",
   "p2pe": {
     "title": "P2PE",
     "type": "separator"
