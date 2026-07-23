@@ -559,7 +559,7 @@ Make sure each suggestion is a natural question a developer would ask while read
             "Welcome! I'm your Dspread documentation assistant. 👋\n\n" +
             "Choose your product type below to get started, or ask any question directly!",
         }}
-        defaultOpen={true}
+        defaultOpen={false}
         clickOutsideToClose={false}
         className="copilot-sidebar"
       />
