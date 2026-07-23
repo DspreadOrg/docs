@@ -165,10 +165,11 @@ routes from the PAGE ROUTE MAP above. NEVER invent routes that are not in the ma
 // ── Inner component (has access to CopilotKit context) ──────────────────
 function AppWithContext({ children }) {
   const router = useRouter();
+  const enableGithubContext =
+    process.env.NEXT_PUBLIC_ENABLE_GITHUB_CONTEXT === "true";
 
   // ─ state ─────────────────────────────────────────────────────────────
   const [docsCtx, setDocsCtx] = useState(null);      // parsed docs-context.json
-  const [githubCtx, setGithubCtx] = useState("");     // combined GitHub content
   const [currentPath, setCurrentPath] = useState("");
 
   // ─ track current route ───────────────────────────────────────────────
@@ -191,24 +192,12 @@ function AppWithContext({ children }) {
       );
   }, [router.basePath]);
 
-  // ─ fetch GitHub repo content (cached in sessionStorage) ──────────────
-  useEffect(() => {
-    fetchAllGithubContent()
-      .then(setGithubCtx)
-      .catch((err) =>
-        console.warn("[CopilotKit] GitHub content fetch failed:", err)
-      );
-  }, []);
-
-  // ─ build the "all pages" text blob ───────────────────────────────────
-  const allDocsText = useMemo(() => {
+  // ─ build a lightweight docs index instead of shipping every page body ─
+  const docsIndexText = useMemo(() => {
     if (!docsCtx?.pages) return "";
     return docsCtx.pages
-      .map(
-        (p) =>
-          `## ${p.title}\nURL: ${p.url}\nRoute: ${p.route}\n\n${p.content}`
-      )
-      .join("\n\n---\n\n");
+      .map((p) => `- ${p.title} (${p.route})`)
+      .join("\n");
   }, [docsCtx]);
 
   // ─ find the matching page for the current route ──────────────────────
@@ -244,21 +233,29 @@ function AppWithContext({ children }) {
     value: currentPageContent || `User is on: ${currentPath}`,
   });
 
-  // ─ 2. All documentation pages — full original markdown ──────────────
+  // ─ 2. Documentation index — keep the always-on payload small ─────────
   useCopilotReadable({
     description:
-      "COMPLETE DOCUMENTATION — original markdown of every page on the Dspread docs site. " +
-      "Quote verbatim from this content. Each section starts with ## Title and URL.",
-    value: allDocsText || "Loading documentation…",
+      "DOCUMENTATION INDEX — titles and routes of every page on the Dspread docs site. " +
+      "Use the current page content for detailed answers.",
+    value: docsIndexText || "Loading documentation index…",
   });
 
-  // ─ 3. GitHub repo content ────────────────────────────────────────────
-  useCopilotReadable({
-    description:
-      "GITHUB REPOSITORY CONTENT — READMEs and key files from official Dspread repos. " +
-      "Use exact code from this content when users ask about source code.",
-    value: githubCtx || "Loading GitHub content…",
-  });
+  // ─ 3. GitHub repo content — opt-in only because it is expensive to load ─
+  useCopilotReadable(
+    enableGithubContext
+      ? {
+          description:
+            "GITHUB REPOSITORY CONTENT — READMEs and key files from official Dspread repos. " +
+            "Use exact code from this content when users ask about source code.",
+          value: "GitHub context is enabled, but loaded only when the feature flag is on.",
+        }
+      : {
+          description:
+            "GITHUB REPOSITORY CONTENT is disabled by default to reduce runtime pressure.",
+          value: "GitHub context disabled",
+        }
+  );
 
   // ─ 4. Product model → category mapping (always available) ────────────
   useCopilotReadable({

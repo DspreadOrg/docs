@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-23T09:49:54.463Z",
+  "generatedAt": "2026-07-23T10:06:52.347Z",
   "baseUrl": "https://dspreadorg.github.io/docs",
   "pageCount": 19,
   "pages": [
@@ -133,8 +133,8 @@
       "slug": "tms-larktms",
       "route": "/tms-larktms",
       "url": "https://dspreadorg.github.io/docs/tms-larktms/",
-      "title": "TMS/LarkTMS",
-      "content": "---\ntitle: TMS/SMARTTMS\ndescription: Terminal Management System and SMARTTMS user manual\n---\n\n# TMS/SMARTTMS\n\n## User Manual\n\nDownload the SMARTTMS user manual to learn how to use the Terminal Management System.\n\n📄 [**SMARTTMS User Manual** (PDF)](/files/SMART_TMS_MANUAL_V1.0.2.pdf)"
+      "title": "TMS/SmartTMS",
+      "content": "---\ntitle: TMS/SmartTMS\ndescription: Terminal Management System and SmartTMS user manual\n---\n\n# TMS/SmartTMS\n\n## User Manual\n\nDownload the SmartTMS user manual to learn how to use the Terminal Management System.\n\n📄 [**SmartTMS User Manual** (PDF)](/files/SMART_TMS_MANUAL_V1.0.2.pdf)"
     }
   ]
 }
