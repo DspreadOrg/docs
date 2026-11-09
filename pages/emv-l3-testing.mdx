@@ -3,8 +3,17 @@ title: EMV L3 Testing
 description: Information about EMV L3 Testing
 ---
 
+import { Tabs, Tab } from 'nextra/components'
+
 # EMV L3 Testing
 
+<Tabs items={['Update by TMS', 'Update by code']}>
+	<Tab>
+Use TMS to update the EMV XML file on the terminal. Select the target terminal, choose the EMV XML configuration, and complete the update through TMS.
+
+![Update EMV XML by TMS](/images/webp/emv%20update%20by%20tms.webp)
+	</Tab>
+	<Tab>
 ```java
 Overloaded function
 pos.updateEMVConfigByXml(String xmlStr);
@@ -12,6 +21,8 @@ pos.updateEMVConfigByXml(String xmlStr);
 //callback
 onReturnCustomConfigResult(boolean isSuccess,String result)
 ```
+	</Tab>
+</Tabs>
 
 
 The following are the emv configuration and firmware we generated based on the test cases of each country for L3 certification.
