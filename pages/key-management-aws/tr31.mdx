@@ -95,12 +95,15 @@ When exchanging multiple keys or supporting key rotation, you typically first ex
 
     Use the [TR-31 key block tool](https://kabc.ca/keys/tr31) to generate or parse the key blocks.
 
-4. **Import the key to your system**
+4. **Import the key to POS terminal **
 
-   Use your system's import key implementation to import the key.
+   Call the API below to inject TR31 keyblock.
 
-```java
-// import tr31 keyblock generated with AWS cloud HSM
-pos.sendTR31Key(tr31KeyBlock);
+```
+//let keyIndex = 0; 
+pos.updateKeyByTR_31(keyIndex, keyBlock);
+
+// Callback
+onReturnUpdateKeyByTR_31Result(boolean result);
 ```
 
