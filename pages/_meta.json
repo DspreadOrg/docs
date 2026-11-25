@@ -19,7 +19,7 @@
     "title": "P2PE",
     "type": "separator"
   },
-  "key-management-aws": "Key Management (AWS)",
+  "key-management-aws": "Key Management",
   "payment-gateway-aws": "Payment Gateway (AWS)",
   "emv-l3-testing": "EMV L3 Testing",
   "support": {

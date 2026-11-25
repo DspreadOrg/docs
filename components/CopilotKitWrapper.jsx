@@ -43,7 +43,7 @@ const VALID_ROUTES = [
   "/linux-terminals/common-issues",
   "/linux-terminals/additional-resources",
   "/cloud-speaker",
-  "/key-management-aws",
+  "/key-management-aws/overview",
   "/payment-gateway-aws",
   "/emv-l3-testing",
   "/tms-larktms",
@@ -112,7 +112,7 @@ CRITICAL: These actions render visual UI IN the chat. Use them proactively to cr
 - Linux Common Issues: /linux-terminals/common-issues
 - Linux Additional Resources: /linux-terminals/additional-resources
 - Cloud Speaker: /cloud-speaker
-- Key Management (AWS): /key-management-aws
+- Key Management: /key-management-aws/overview
 - Payment Gateway (AWS): /payment-gateway-aws
 - EMV L3 Testing: /emv-l3-testing
 - TMS/LarkTMS: /tms-larktms

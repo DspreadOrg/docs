@@ -25,7 +25,7 @@ const PAGE_META = {
   "/linux-terminals/common-issues": { icon: "🐛", label: "Common Issues" },
   "/linux-terminals/additional-resources": { icon: "📚", label: "Additional Resources" },
   "/cloud-speaker": { icon: "🔊", label: "Cloud Speaker" },
-  "/key-management-aws": { icon: "🔐", label: "Key Management (AWS)" },
+  "/key-management-aws/overview": { icon: "🔐", label: "Key Management" },
   "/payment-gateway-aws": { icon: "🌐", label: "Payment Gateway (AWS)" },
   "/emv-l3-testing": { icon: "🧪", label: "EMV L3 Testing" },
   "/tms-larktms": { icon: "📡", label: "TMS / LarkTMS" },
