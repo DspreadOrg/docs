@@ -50,10 +50,22 @@ import { Steps, Tabs, Tab } from 'nextra/components'
 
 ### Start Payment
 
-```java
-pos.setAmount(amount, cashbackAmount, "156", TransactionType.GOODS);
-pos.doTrade(60);
-```
+<Tabs items={['DUKPT', 'MKSK']}>
+  <Tab>
+  ```java
+  pos.setFormatId(QPOSService.FORMATID.DUKPT);
+  pos.setAmount(amount, cashbackAmount, "156", TransactionType.GOODS);
+  pos.doTrade(60);
+  ```
+  </Tab>
+  <Tab>
+  ```java
+  pos.setFormatId(QPOSService.FORMATID.MKSK);
+  pos.setAmount(amount, cashbackAmount, "156", TransactionType.GOODS);
+  pos.doTrade(60);
+  ```
+  </Tab>
+</Tabs>
 
 ### onDoTradeResult
 
